@@ -1,0 +1,32 @@
+﻿<!DOCTYPE html>
+<html xmlns="http://www.w3.org/1999/xhtml">
+<head>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+    <title>超大文件上传</title>
+    <meta name="viewport" content="width=device-width, initial-scale=0.9, maximum-scale=1.0, user-scalable=no" />
+    <script src="Scripts/jquery-2.1.1.min.js"></script>
+    <script src="Scripts/Uploader.js"></script>
+    <!--<script src="Scripts/Uploader.min.js"></script>-->
+    <!--<script src="Scripts/Uploader.release.js"></script>-->
+    <!--<script src="Scripts/Uploader.release.min.js"></script>-->
+</head>
+<body>
+    <br />
+    <a href="#" id="btn">select files</a><br />
+    <input id="m" type="file" />
+    <a href="javascript:" id="up">upload</a>
+
+    <script>
+        $("#up").click(function () {
+            $("#m").asyncUploadFiles({ url: "Handler1.ashx" }, { complete: function (f,e) { alert(f.name+"上传已经完成！") }});
+        });
+        var uploader = new Uploader({
+            placeholder: "#btn", url: "Handler1.ashx"//,accept:"image/*",types:".jpg;.gif;.png",limitSize:1024*1024*50
+           , dragable: true//,dragContainer:$("#kk")
+        }, { error: function (file, args) { alert("message:" + args.message + ",type:" + args.type); args.cancel = true; } });
+        Uploader();
+        //var dd = new Uploader({ url: "/dd/dd" });
+        //dd.on();
+    </script>
+</body>
+</html>
