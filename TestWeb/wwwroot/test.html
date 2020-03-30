@@ -1,0 +1,41 @@
+﻿<!DOCTYPE html>
+<html>
+<head>
+    <meta charset="utf-8" />
+    <title></title>
+</head>
+<body>
+    <a href="#">上传</a>
+    <script src="lib/jquery/dist/jquery.min.js"></script>
+    <script src="lib/h5Uploader/Uploader.dev.js"></script>
+    <!--<script src="lib/h5Uploader/Uploader.js"></script>-->
+    <script>
+        var times={};
+        var uploader = new Uploader({
+            url: "/FileServices/Uploader",
+            placeholder: "a",
+            params: { dir: "test/kkk" },
+            dragable: true
+        });
+        uploader.on({
+            "error": function (file, arg) {
+                arg.cancel = true;
+                console.log("error:" + arg.message);
+                console.log("resumableKey:",this.resumableKey);
+            },
+            "upload": function (file) {
+                times[file.name] = new Date();
+            },
+            "success": function (file, arg) {
+                var s = new Date() - times[file.name]
+                console.log("成功返回结果用时：" + (s / 1000 / 60) + "分钟");
+                console.log("返回结果：" + arg.result);
+            },
+            "complete": function (file) {
+                var s = new Date() - times[file.name]
+                console.log("上传文件“" + file.name + "”用时：" + (s / 1000 / 60) + "分钟");
+            }
+        })
+    </script>
+</body>
+</html>
