@@ -9,7 +9,7 @@ namespace Ufangx.FileServices.Models
     {
         private readonly IList<FileServiceScheme> _schemes = new List<FileServiceScheme>();
         private readonly IList<string> _authenticationSchemes = new List<string>();
-        public string DefaultTopic { get; set; }
+        public string DefaultScheme { get; set; }
         public IEnumerable<FileServiceScheme> Schemes => _schemes;
         public IEnumerable<string> AuthenticationSchemes => _authenticationSchemes;
         public IDictionary<string, FileServiceScheme> SchemeMap { get; } = new Dictionary<string, FileServiceScheme>(StringComparer.Ordinal);

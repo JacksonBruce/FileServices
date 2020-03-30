@@ -26,19 +26,19 @@ namespace Ufangx.FileServices
 
         public IEnumerable<string> AuthenticationSchemes => options.AuthenticationSchemes;
 
-        public string DefaultSchemeName => options.DefaultTopic;
+        public string DefaultSchemeName => options.DefaultScheme;
 
         FileServiceScheme GetScheme(string name) {
             if (string.IsNullOrWhiteSpace(name))
             {
                 throw new ArgumentException("message", nameof(name));
             }
-            var topic = options.SchemeMap[name];
-            if (topic == null)
+            var scheme = options.SchemeMap[name];
+            if (scheme == null)
             {
                 throw new Exception($"无效的文件服务方案名称“{name}”");
             }
-            return topic;
+            return scheme;
         }
         public IFileHandler GetHandler(string schemeName)
         {

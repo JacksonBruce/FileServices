@@ -27,7 +27,7 @@ namespace TestWeb
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpContextAccessor();
-            services.AddFileServiceBuilder(opt=>opt.DefaultTopic="")
+            services.AddFileServiceBuilder(opt=>opt.DefaultScheme="")
                 .AddLocalServices(o => o.StorageRootDir = hostEnvironment.ContentRootPath);
             services.AddControllersWithViews();
         }
