@@ -14,20 +14,14 @@ namespace Ufangx.FileServices.Middlewares
 {
     public class ResumableInfoDeleteUploaderMiddleware : UploaderMiddleware
     {
-        private IResumableService service;
-
-        public IResumableService Service => service??(service=serviceProvider.GetResumableService());
-        public ResumableInfoDeleteUploaderMiddleware(RequestDelegate next, 
-            IFileServiceProvider serviceProvider) : base(next, serviceProvider)
+        public ResumableInfoDeleteUploaderMiddleware(RequestDelegate next, IFileServiceProvider serviceProvider) : base(next, serviceProvider)
         {
-           
         }
-        protected override async Task Handler(HttpContext context) {
-            await WriteJsonAsync(await Service.DeleteBlobs(GetRequestParams("key")));
-        }
-        protected override string GetRequestParams(string key)
+        protected override async Task Handler(HttpContext context)
         {
-            return Context.Request.Form[key];
+            string key = context.Request.Form["key"];
+            var service= context.RequestServices.GetRequiredService<IResumableService>();
+            await WriteJsonAsync(context, await service.DeleteBlobs(key));
         }
     }
 }

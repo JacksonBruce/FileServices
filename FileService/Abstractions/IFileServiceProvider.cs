@@ -14,19 +14,10 @@ namespace Ufangx.FileServices.Abstractions
         /// 
         /// </summary>
         string DefaultSchemeName { get; }
-        /// <summary>
-        /// 生成文件名称
-        /// </summary>
-        /// <param name="originName"></param>
-        /// <param name="directory"></param>
-        /// <returns></returns>
-        Task<string> GenerateFileName(string originName, string schemeName, string directory = null);
-        FileValidateResult Validate(string schemeName, string fileName,long fileSize);
-        IFileHandler GetHandler(string schemeName);
-        string GetStoreDirectory(string schemeName);
-        IFileService GetFileService();
-        IResumableService GetResumableService();
+        FileServiceScheme GetScheme(string schemeName);
         IEnumerable<FileServiceScheme> GetSchemes();
+
+        FileNameRuleOptions GetNameRuleOptions();
 
 
     }

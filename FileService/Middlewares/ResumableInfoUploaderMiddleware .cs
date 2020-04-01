@@ -14,53 +14,54 @@ namespace Ufangx.FileServices.Middlewares
 {
     public class ResumableInfoUploaderMiddleware : UploaderMiddleware
     {
-        private IResumableInfoService service;
-
-        public IResumableInfoService Service => service ?? (service = Context.RequestServices.GetRequiredService<IResumableInfoService>());
-
-        public ResumableInfoUploaderMiddleware(RequestDelegate next, 
-            IFileServiceProvider serviceProvider) : base(next, serviceProvider)
+        public ResumableInfoUploaderMiddleware(RequestDelegate next, IFileServiceProvider serviceProvider) : base(next, serviceProvider)
         {
         }
-        protected override async Task Handler(HttpContext context) {
-            string key = GetRequestParams("key");
+        protected override async Task Handler(HttpContext context)
+        { 
+            string key = context.Request.Query["key"];
             IResumableInfo info = null;
+            IResumableCreator resumableCreator = context.RequestServices.GetRequiredService<IResumableCreator>();
             if (string.IsNullOrWhiteSpace(key))
             {
-                if (long.TryParse(GetRequestParams("fileSize"), out long fileSize)
-                     && int.TryParse(GetRequestParams("blobSize"), out int blobSize)
-                     && long.TryParse(GetRequestParams("blobCount"), out long blobCount))
+                if (long.TryParse(context.Request.Query["fileSize"], out long fileSize)
+                     && int.TryParse(context.Request.Query["blobSize"], out int blobSize)
+                     && long.TryParse(context.Request.Query["blobCount"], out long blobCount))
                 {
-                    string fileName = GetRequestParams("fileName");
-                    if (string.IsNullOrWhiteSpace(fileName)) {
-                        await Error(StringLocalizer["参数文件名称（fileName）是必须的"]);
+                    string fileName = context.Request.Query["fileName"];
+                    string _scheme = context.Request.Headers["scheme"];
+                    string fileType= context.Request.Query["fileType"];
+                    string dir = context.Request.Query["dir"];
+                    string name = context.Request.Query["name"];
+                    if (string.IsNullOrWhiteSpace(fileName))
+                    {
+                        await Error(context, "参数文件名称（fileName）是必须的");
                         return;
                     }
-                    if (await ValidateResultHandler(Validate(fileName, fileSize))) {
+                    if (await ValidateResultHandler(resumableCreator.Validate(fileName,fileSize,_scheme),context))
+                    {
                         return;
                     }
-                    info = await Service.Create(await GetStoreFileName(fileName),
-                        fileName,
+                    info = await resumableCreator.Create(fileName,
                         fileSize,
-                        GetRequestParams("fileType"),
+                        fileType,
                         blobCount,
-                        blobSize);
+                        blobSize,
+                        _scheme,
+                        dir,
+                        name);
                 }
             }
             else
-            { 
-                info = await Service.Get(key);
+            {
+                info = await resumableCreator.Get(key);
             }
-            await WriteJsonAsync(info == null ? null : new
+            await WriteJsonAsync(context, info == null ? null : new
             {
                 key = info.Key,
                 index = info.BlobIndex,
-            }); 
+            });
         }
 
-        protected override string GetRequestParams(string key)
-        {
-            return Context.Request.Query[key];
-        }
     }
 }
