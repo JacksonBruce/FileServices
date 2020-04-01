@@ -45,6 +45,8 @@
                     opt.Zone = "ZoneCnEast";
                 
                 });
+                //续传信息默认是存储在缓存里面，通过services.AddDistributedRedisCache方法配置Redis缓存实现持久化存储
+                //或者AddQiniuFileService<CustomResumableInfoService>或者AddLocalServices<CustomResumableInfoService> 方法指定自定义续传信息服务类型
         }
         
 ```
