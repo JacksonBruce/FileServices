@@ -4,6 +4,16 @@
     <TargetFrameworks>netstandard2.0;netcoreapp2.0;netstandard2.1;netcoreapp3.0</TargetFrameworks>
     <RootNamespace>Ufangx.FileServices</RootNamespace>
     <AssemblyName>FileServices</AssemblyName>
+    <Authors>Jackson.bruce</Authors>
+    <Company>Ufangx</Company>
+    <Description>File management, super large file upload, breakpoint renewal</Description>
+    <PackageLicenseExpression>MIT</PackageLicenseExpression>
+    <RepositoryUrl>https://github.com/JacksonBruce/FileServices.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/JacksonBruce/FileServices</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>file service web uploader html5 uploader breakpoint renewal</PackageTags>
+    <Copyright>Copyright (c) 2020-$([System.DateTime]::Now.Year) Jackson.Bruce</Copyright>
+    <Version>1.0.0-beta.1</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)|$(Platform)'=='netstandard2.0|AnyCPU'">

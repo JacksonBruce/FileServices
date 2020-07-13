@@ -22,14 +22,15 @@ namespace Ufangx.FileServices.Local
         }
         string GetTempDir(string path, string key)
         {
-            return Path.Combine(Path.GetDirectoryName(path), $"_tmp{key}");
+            return Path.Combine(Path.GetDirectoryName(path), $"_tmp{key}").Replace('\\','/');
         }
         bool CheckFiles(string dir, long count) {
             //Console.WriteLine("正在检查文件。。。");
             //Stopwatch sw = Stopwatch.StartNew();
             for (long i = 0; i < count; i++)
             {
-                if (!File.Exists(Path.Combine(dir, $"{i}"))) { return false; }
+                string path = Path.Combine(dir, $"{i}").Replace('\\', '/');
+                if (!File.Exists(path)) { return false; }
             }
             //sw.Stop();
             //Console.WriteLine($"检查{count}个文件，用时：{sw.Elapsed.TotalMilliseconds}毫秒");
@@ -51,8 +52,8 @@ namespace Ufangx.FileServices.Local
                 using (var fs = GetFileStream(path))
                 {
                     for (long i = 0; i < count; i++)
-                    {
-                        var blob = await GetBlob(Path.Combine(dir, $"{i}"), token);
+                    { 
+                        var blob = await GetBlob(Path.Combine(dir, $"{i}").Replace('\\','/'), token);
                         await fs.WriteAsync(blob, 0, blob.Length, token);
                     }
                     await fs.FlushAsync(token);
@@ -87,7 +88,7 @@ namespace Ufangx.FileServices.Local
             }
             var p = physicalPath(info.StoreName);
             string tempdir = GetTempDir(p,info.Key);
-            var tmp = Path.Combine(tempdir, $"{blob.BlobIndex}");
+            var tmp = Path.Combine(tempdir, $"{blob.BlobIndex}").Replace('\\','/');
             if (CreateDirIfNonexistence(tmp))
             {
                 var stream = blob.Data;

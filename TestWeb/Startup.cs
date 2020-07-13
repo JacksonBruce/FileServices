@@ -2,6 +2,7 @@ using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Threading.Tasks;
+using Microsoft.AspNetCore.Authentication.Cookies;
 using Microsoft.AspNetCore.Builder;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.AspNetCore.HttpsPolicy;
@@ -27,8 +28,40 @@ namespace TestWeb
         public void ConfigureServices(IServiceCollection services)
         {
             services.AddHttpContextAccessor();
-            services.AddFileServices(opt=>opt.DefaultScheme="")
-                .AddLocalServices(o => o.StorageRootDir = hostEnvironment.ContentRootPath);
+            services.AddFileServices(opt => {
+                opt.DefaultScheme = "documents";//默认是文档处理方案
+                opt.AddAuthenticationScheme(CookieAuthenticationDefaults.AuthenticationScheme);//身份认证方案名称
+                //文件保存时新文件的命名规则
+                opt.RuleOptions = new Ufangx.FileServices.Models.FileNameRuleOptions()
+                {
+                    Rule = Ufangx.FileServices.Models.FileNameRule.Custom,//自定义命名规则，必须提供自定义方法
+                    Custom = originFileName => string.Format("{0:yyyyMMddHHmmss}_xx_{1}", DateTime.Now, originFileName),
+                    Format = "xxx_{0:yyyyMMddHHmmss}"//这个配置和Rule=FileNameRule.Date一起使用，默认是：{0:yyyyMMddHHmmss}
+                };
+
+            })
+                //照片处理方案
+                .AddScheme("pictures", opt => {
+                    opt.StoreDirectory = "wwwroot/pictures";//图片存储的目录
+                    opt.SupportExtensions = new string[] { ".jpg", ".png" };//支持的扩展名
+                    opt.HandlerType = null;//上传成功后的文件处理类型，该类型必须实现IFileHandler接口
+                    opt.LimitedSize = 1024 * 1024 * 4;//文件大小的最大限制值，字节为单位
+                })
+                .AddScheme("documents",opt => opt.StoreDirectory = "wwwroot/documents")//文档处理方案
+                //.AddScheme<VideoService>(name:"videos",storeDirectory:"",supportExtensions:new string[] { },LimitedSize:1024*1024*500)//视频处理方案
+                //.AddLocalServices(o => o.StorageRootDir = hostEnvironment.ContentRootPath)//本地文件系统，文件存在本地
+                //七牛存储服务
+                .AddQiniuFileService(opt => {
+                    opt.AccessKey = "";//
+                    opt.SecretKey = "";
+                    opt.BasePath = "";
+                    opt.Bucket = "";
+                    opt.Domain = "";
+                    opt.ChunkUnit = Qiniu.Storage.ChunkUnit.U1024K;
+                    opt.Zone = "ZoneCnEast";
+                
+                });
+
             services.AddControllersWithViews();
         }
 

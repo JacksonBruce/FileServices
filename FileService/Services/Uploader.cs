@@ -41,26 +41,26 @@ namespace Ufangx.FileServices.Services
                 nameRule = FileNameRule.Ascending;
             }
             if (directory == null) { directory = string.Empty; }
-            directory = Path.Combine(scheme?.StoreDirectory ?? string.Empty, directory);
+            directory = Path.Combine(scheme?.StoreDirectory ?? string.Empty, directory).Replace('\\', '/');
             string fileName;
             switch (nameRule)
             {
                 case FileNameRule.Ascending:
-                    fileName = Path.Combine(directory, originName);
+                    fileName = Path.Combine(directory, originName).Replace('\\', '/');
                     int index = 0;
                     while (await fileService.Exists(fileName))
                     {
-                        fileName = Path.Combine(directory, $"{Path.GetFileNameWithoutExtension(originName)}({++index}){Path.GetExtension(originName)}");
+                        fileName = Path.Combine(directory, $"{Path.GetFileNameWithoutExtension(originName)}({++index}){Path.GetExtension(originName)}").Replace('\\', '/');
                     }
                     break;
                 case FileNameRule.Date:
-                    fileName = Path.Combine(directory, string.Format(fileNameRuleOptions?.Format ?? "{0:yyyyMMddHHmmss}", DateTime.Now) + Path.GetExtension(originName));
+                    fileName = Path.Combine(directory, string.Format(fileNameRuleOptions?.Format ?? "{0:yyyyMMddHHmmss}", DateTime.Now) + Path.GetExtension(originName)).Replace('\\', '/');
                     break;
                 case FileNameRule.Custom:
-                    fileName = Path.Combine(directory, fileNameRuleOptions.Custom(originName));
+                    fileName = Path.Combine(directory, fileNameRuleOptions.Custom(originName)).Replace('\\', '/');
                     break;
                 default:
-                    fileName = Path.Combine(directory, originName);
+                    fileName = Path.Combine(directory, originName).Replace('\\', '/');
                     break;
             }
             return fileName.Replace('\\', '/');

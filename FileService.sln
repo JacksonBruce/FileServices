@@ -7,7 +7,7 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "FileServices", "FileService
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TestWeb", "TestWeb\TestWeb.csproj", "{B64F2077-52A2-472F-883F-57EBE8805F8D}"
 EndProject
-Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "QiniuFileService", "Qiniu\QiniuFileService.csproj", "{218AEB0B-2C51-42D7-98E0-4C1FE7E09E69}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "Qiniu.FileService", "Qiniu\Qiniu.FileService.csproj", "{218AEB0B-2C51-42D7-98E0-4C1FE7E09E69}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution

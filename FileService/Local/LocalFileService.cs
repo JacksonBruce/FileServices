@@ -22,7 +22,7 @@ namespace Ufangx.FileServices.Local
         }
        protected string physicalPath(string path) {
 
-            return Path.Combine(option.StorageRootDir, path.Trim().Replace('/', '\\').TrimStart('\\'));
+            return Path.Combine(option.StorageRootDir, path.Trim().Replace('\\', '/').TrimStart('/'));
         }
         protected bool CreateDirIfNonexistence(string path) {
          

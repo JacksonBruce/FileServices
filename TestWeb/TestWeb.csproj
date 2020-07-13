@@ -12,11 +12,7 @@
 
   <ItemGroup>
     <PackageReference Include="Microsoft.VisualStudio.Azure.Containers.Tools.Targets" Version="1.10.8" />
-  </ItemGroup>
-
-  <ItemGroup>
-    <ProjectReference Include="..\FileService\FileServices.csproj" />
-    <ProjectReference Include="..\Qiniu\QiniuFileService.csproj" />
+    <PackageReference Include="Qiniu.FileService" Version="1.0.0-beta.1" />
   </ItemGroup>
 
 

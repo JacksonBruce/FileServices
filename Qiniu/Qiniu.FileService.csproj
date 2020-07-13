@@ -1,0 +1,22 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFrameworks>netstandard2.0;netcoreapp2.0;netstandard2.1;netcoreapp3.0</TargetFrameworks>
+    <AssemblyName>Qiniu.FileService</AssemblyName>
+    <Authors>Jackson.bruce</Authors>
+    <Company>Ufangx</Company>
+    <Description>File management, super large file upload, breakpoint renewal</Description>
+    <licenseUrl>https://github.com/JacksonBruce/FileServices/blob/master/LICENSE</licenseUrl>
+    <RepositoryUrl>https://github.com/JacksonBruce/FileServices.git</RepositoryUrl>
+    <PackageProjectUrl>https://github.com/JacksonBruce/FileServices</PackageProjectUrl>
+    <RepositoryType>git</RepositoryType>
+    <PackageTags>file service web uploader html5 uploader breakpoint renewal</PackageTags>
+    <Copyright>Copyright (c) 2020-$([System.DateTime]::Now.Year) Jackson.Bruce</Copyright>
+    <Version>1.0.0-beta.1</Version>
+  </PropertyGroup>
+  <ItemGroup>
+    <PackageReference Include="FileServices" Version="1.0.0" />
+    <PackageReference Include="Qiniu.SDK" Version="8.0.0" />
+  </ItemGroup>
+
+</Project>
