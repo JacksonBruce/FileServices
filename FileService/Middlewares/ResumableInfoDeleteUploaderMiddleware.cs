@@ -19,7 +19,7 @@ namespace Ufangx.FileServices.Middlewares
         }
         protected override async Task Handler(HttpContext context)
         {
-            string key = context.Request.Form["key"];
+            string key = context.Request.Query["key"];
             var service= context.RequestServices.GetRequiredService<IResumableService>();
             await WriteJsonAsync(context, await service.DeleteBlobs(key));
         }

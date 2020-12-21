@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Logging;
 using TestWeb.Models;
+using Microsoft.AspNetCore.Authentication;
+using Microsoft.AspNetCore.Authentication.Cookies;
+using System.Security.Claims;
 
 namespace TestWeb.Controllers
 {
@@ -18,8 +21,16 @@ namespace TestWeb.Controllers
             _logger = logger;
         }
 
-        public IActionResult Index()
+        public async Task<IActionResult> Index()
         {
+            if (!User.Identity.IsAuthenticated) {
+                var identity = new ClaimsIdentity("form");
+                identity.AddClaims(new Claim[] {
+                    new Claim(ClaimTypes.Sid,"uk"),
+                    new Claim(ClaimTypes.Name,"admin")
+                });
+                await   HttpContext.SignInAsync(CookieAuthenticationDefaults.AuthenticationScheme,new ClaimsPrincipal(identity),new AuthenticationProperties() { IsPersistent=true });
+            }
             return View();
         }
 

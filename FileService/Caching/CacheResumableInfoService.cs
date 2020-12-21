@@ -4,6 +4,7 @@ using Microsoft.Extensions.Logging;
 using Newtonsoft.Json;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Security.Cryptography;
 using System.Text;
 using System.Threading.Tasks;
@@ -36,7 +37,7 @@ namespace Ufangx.FileServices.Caching
                 throw new ArgumentException("message", nameof(fileName));
             }
 
-            string cleanKey = $"StoreName={storeName}&FileName={fileName}&FileType={fileType}&FileSize={fileSize}&BlobSize={blobSize}&BlobCount={blobCount}&user={contextAccessor?.HttpContext?.User?.Identity?.Name}";
+            string cleanKey = $"StoreName={Path.GetDirectoryName(storeName).Replace('\\','/').ToLower()}&FileName={fileName.ToLower()}&FileType={fileType?.ToLower()}&FileSize={fileSize}&BlobSize={blobSize}&BlobCount={blobCount}&user={contextAccessor?.HttpContext?.User?.Identity?.Name?.ToLower()}";
             byte[] data;
             using (var md5 = MD5.Create())
             {
