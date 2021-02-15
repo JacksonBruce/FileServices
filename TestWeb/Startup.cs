@@ -105,12 +105,12 @@ namespace TestWeb
             //        throw ex;
             //    }
             //});
-            app.UseFileServices();
+            app.UseFileServices("/api");
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "{controller=Home}/{action=Index}/{id?}");
+                    pattern: "api/{controller=Home}/{action=Index}/{id?}");
             });
         }
     }
