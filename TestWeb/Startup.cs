@@ -95,6 +95,7 @@ namespace TestWeb
             app.UseRouting();
 
             app.UseAuthorization();
+            app.UseFileServices("/api");
             //app.Use(next => async ctx =>
             //{
             //    try
@@ -105,12 +106,11 @@ namespace TestWeb
             //        throw ex;
             //    }
             //});
-            app.UseFileServices("/api");
             app.UseEndpoints(endpoints =>
             {
                 endpoints.MapControllerRoute(
                     name: "default",
-                    pattern: "api/{controller=Home}/{action=Index}/{id?}");
+                    pattern: "{controller=Home}/{action=Index}/{id?}");
             });
         }
     }

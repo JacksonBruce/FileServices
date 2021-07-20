@@ -30,7 +30,7 @@ namespace Ufangx.FileServices.Middlewares
                     //如果有文件验证失败则返回
                     return;
                 }
-                await WriteJsonAsync(context, await uploader.Handle(context.Request.Form.Files, _scheme));
+                await WriteJsonAsync(context, await uploader.Handle(context.Request.Form.Files, _scheme,dir));
                 return;
 
             }
@@ -40,7 +40,7 @@ namespace Ufangx.FileServices.Middlewares
                 {
                     return;
                 }
-                await WriteJsonAsync(context, await uploader.Handle(context.Request.Form.Files[0], _scheme));
+                await WriteJsonAsync(context, await uploader.Handle(context.Request.Form.Files[0], _scheme,dir,fileName));
             }
         }
     }

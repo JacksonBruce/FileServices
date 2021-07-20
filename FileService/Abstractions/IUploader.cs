@@ -11,7 +11,7 @@ namespace Ufangx.FileServices.Abstractions
     {
         FileValidateResult Validate(IFormFile file, string schemeName=null);
         FileValidateResult Validate(IFormFileCollection files, string schemeName=null);
-        Task<object> Handle(IFormFileCollection files, string schemeName = null);
+        Task<object> Handle(IFormFileCollection files, string schemeName = null, string dir = null);
         Task<object> Handle(IFormFile file,string schemeName=null, string dir=null,string name=null);
     }
 }

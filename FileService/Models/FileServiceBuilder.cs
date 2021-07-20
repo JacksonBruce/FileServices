@@ -42,7 +42,7 @@ namespace Ufangx.FileServices.Models
         {
           
             Services.Configure<FileServiceOptions>(opt => opt.AddScheme<THandler>(name, storeDirectory, supportExtensions, LimitedSize));
-            Services.AddTransient<THandler>();
+            //Services.AddTransient<THandler>();//外面注入
             return this;
         }
     }

@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using Qiniu.Http;
 using Qiniu.Storage;
 using Qiniu.Util;
@@ -8,6 +9,7 @@ using System.Net.Http;
 using System.Threading;
 using System.Threading.Tasks;
 using Ufangx.FileServices.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Qiniu
 {
@@ -16,8 +18,9 @@ namespace Qiniu
         protected readonly FileServiceOptions options;
         protected readonly Mac mac;
         protected readonly Config config;
+        protected readonly IHttpContextAccessor contextAccessor;
 
-        public FileService(IOptions<FileServiceOptions> options)
+        public FileService(IOptions<FileServiceOptions> options, IHttpContextAccessor contextAccessor)
         {
             if (options is null)
             {
@@ -67,6 +70,8 @@ namespace Qiniu
                         break;
                 }
             }
+
+            this.contextAccessor = contextAccessor;
         }
 
         public Task<bool> Append(string path, Stream stream, CancellationToken token = default)
@@ -85,7 +90,7 @@ namespace Qiniu
         => await Append(path, new MemoryStream(data), token);
 
         public async Task<bool> Delete(string path, CancellationToken token = default)
-       => (await GetBucketManager().Delete(options.Bucket, GetSaveKey(path))).Code == (int)HttpCode.OK;
+       => (await GetBucketManager().Delete(options.Bucket,await GetSaveKey(path))).Code == (int)HttpCode.OK;
         //(await Task.FromResult(GetBucketManager().Delete(options.Bucket, GetSaveKey(path)))).Code == (int)HttpCode.OK;
 
         public async Task<bool> Exists(string path, CancellationToken token = default)
@@ -93,9 +98,9 @@ namespace Qiniu
             var result = await GetInfo(path);
             return result.Code == (int)HttpCode.OK; 
         }
-        string GetDownloadUrl(string path)
+        async Task<string> GetDownloadUrl(string path)
         {
-            var key = GetSaveKey(path);
+            var key =await GetSaveKey(path);
             string baseUrl = options.Domain.Trim();
             baseUrl = baseUrl.StartsWith("http://", StringComparison.OrdinalIgnoreCase) || baseUrl.StartsWith("https://", StringComparison.OrdinalIgnoreCase) ? baseUrl :
                 "http://" + baseUrl;
@@ -105,13 +110,13 @@ namespace Qiniu
         }
         public async Task<byte[]> GetFileData(string path, CancellationToken token = default)
         {
-            var url = GetDownloadUrl(path);
+            var url =await GetDownloadUrl(path);
             HttpClient client = new HttpClient();
             return await client.GetByteArrayAsync(url);
 
         }
         async Task<StatResult> GetInfo(string path) => await 
-            GetBucketManager().Stat(options.Bucket, GetSaveKey(path));
+            GetBucketManager().Stat(options.Bucket,await GetSaveKey(path));
             //Task.FromResult(GetBucketManager().Stat(options.Bucket, GetSaveKey(path)));
         public async Task<DateTime> GetModifyDate(string path, CancellationToken token = default)
         {
@@ -124,7 +129,7 @@ namespace Qiniu
         }
         public async Task<Stream> GetStream(string path, CancellationToken token = default)
         {
-            var url = GetDownloadUrl(path);
+            var url =await GetDownloadUrl(path);
             HttpClient client = new HttpClient();
            return await client.GetStreamAsync(url);
 
@@ -135,15 +140,15 @@ namespace Qiniu
         {
             BucketManager bucket = GetBucketManager();
             //var result = await Task.FromResult(bucket.Move(options.Bucket, GetSaveKey(sourceFileName), options.Bucket, GetSaveKey(destFileName)));
-            var result = await bucket.Move(options.Bucket, GetSaveKey(sourceFileName), options.Bucket, GetSaveKey(destFileName));
+            var result = await bucket.Move(options.Bucket,await GetSaveKey(sourceFileName), options.Bucket,await GetSaveKey(destFileName));
             if (result.Code != (int)HttpCode.OK)
             {
                 throw new Exception(result.Text);
             }
         }
-        string GetSaveKey(string path)
+        Task<string> GetSaveKey(string path)
         {
-            return Utils.GetSaveKey(options.BasePath, path);
+            return contextAccessor.GetSaveKey(options.BasePath, path);
         }
         string GetToken(string savekey)
         {
@@ -179,7 +184,7 @@ namespace Qiniu
 
         public async Task<bool> Save(string path, byte[] data, CancellationToken token = default)
         {
-            var key = GetSaveKey(path);
+            var key =await GetSaveKey(path);
             var uploadManager = GetUploadManager();
             //var result = await Task.FromResult(uploadManager.UploadData(data, key, GetToken(key), null));
             var result = await uploadManager.UploadData(data, key, GetToken(key), null);

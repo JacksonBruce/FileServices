@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -6,23 +7,34 @@ using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using Ufangx.FileServices.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Ufangx.FileServices.Local
 {
     public class LocalFileService : IFileService
     {
         private readonly LocalFileOption option;
+        private readonly IHttpContextAccessor httpContextAccessor;
 
-        public LocalFileService(IOptions<LocalFileOption> option) {
+        public LocalFileService(IOptions<LocalFileOption> option,IHttpContextAccessor httpContextAccessor) {
 
             this.option = option.Value; // option??new LocalFileOption();
             if (string.IsNullOrWhiteSpace(this.option.StorageRootDir)) {
                 this.option.StorageRootDir = AppContext.BaseDirectory;
             }
-        }
-       protected string physicalPath(string path) {
 
-            return Path.Combine(option.StorageRootDir, path.Trim().Replace('\\', '/').TrimStart('/'));
+            this.httpContextAccessor = httpContextAccessor;
+        }
+       protected async Task<string> physicalPath(string path) {
+            string root;
+            var rootService = httpContextAccessor.HttpContext.RequestServices.GetService<IRootDirectory>();
+            if (rootService == null || string.IsNullOrWhiteSpace(root = await rootService.GetRoot()))
+            {
+                return Path.Combine(option.StorageRootDir, path.Trim().Replace('\\', '/').TrimStart('/')).Replace('\\', '/');
+            }
+            return Path.Combine(option.StorageRootDir,
+                root.Trim().Replace('\\', '/').TrimStart('/'),
+                path.Trim().Replace('\\', '/').TrimStart('/')).Replace('\\', '/');
         }
         protected bool CreateDirIfNonexistence(string path) {
          
@@ -34,7 +46,7 @@ namespace Ufangx.FileServices.Local
         }
         public async Task<bool> Delete(string path, CancellationToken token = default(CancellationToken))
         { 
-            string p = physicalPath(path);
+            string p = await physicalPath(path);
             if (File.Exists(p))
             {
                 File.Delete(p);
@@ -45,12 +57,13 @@ namespace Ufangx.FileServices.Local
 
         public async Task<bool> Exists(string path, CancellationToken token = default(CancellationToken))
         {
-            return await Task.FromResult(File.Exists(physicalPath(path)));
+            var filePath = await physicalPath(path);
+            return File.Exists(filePath);
         }
 
         public async Task<Stream> GetStream(string path, CancellationToken token = default(CancellationToken))
         {
-            var p = physicalPath(path);
+            var p =await physicalPath(path);
             if (!File.Exists(p)) return null;
             return await Task.FromResult(new FileStream(p, FileMode.Open, FileAccess.Read,FileShare.ReadWrite| FileShare.Delete));
 
@@ -58,7 +71,7 @@ namespace Ufangx.FileServices.Local
 
         public async Task<byte[]> GetFileData(string path, CancellationToken token = default(CancellationToken))
         {
-            var p = physicalPath(path);
+            var p =await physicalPath(path);
             if (!File.Exists(p)) return null;
 #if netstandard20
    return await Task.FromResult(File.ReadAllBytes(p));
@@ -70,7 +83,7 @@ namespace Ufangx.FileServices.Local
 
         public async Task<bool> Save(string path, Stream stream, CancellationToken token = default(CancellationToken))
         {
-            var p = physicalPath(path);
+            var p =await physicalPath(path);
             if (CreateDirIfNonexistence(p))
             {
                 if (stream.CanSeek && stream.Position > 0) { stream.Position = 0; }
@@ -95,7 +108,7 @@ namespace Ufangx.FileServices.Local
 
         public async Task<bool> Save(string path, byte[] data, CancellationToken token = default(CancellationToken))
         {
-            var p = physicalPath(path);
+            var p = await physicalPath(path);
             if (CreateDirIfNonexistence(p))
             {
 #if netstandard20
@@ -110,19 +123,20 @@ namespace Ufangx.FileServices.Local
             return false;
         }
         public async Task Move(string sourceFileName,string destFileName) {
-            sourceFileName = physicalPath(sourceFileName);
-            destFileName = physicalPath(destFileName);
+            sourceFileName = await physicalPath(sourceFileName);
+            destFileName = await physicalPath(destFileName);
             File.Move(sourceFileName, destFileName);
             await Task.CompletedTask;
         }
         public async Task<DateTime> GetModifyDate(string path, CancellationToken token = default(CancellationToken))
         {
-            return await Task.FromResult(File.GetLastWriteTime(physicalPath(path)));
+            var filePath = await physicalPath(path);
+            return File.GetLastWriteTime(filePath);
         }
 
         public async Task<bool> Append(string path, Stream stream, CancellationToken token = default(CancellationToken))
         {
-            var p = physicalPath(path);
+            var p = await physicalPath(path);
             if (CreateDirIfNonexistence(p))
             {
                 if (stream.CanSeek && stream.Position > 0) { stream.Position = 0; }
@@ -146,7 +160,7 @@ namespace Ufangx.FileServices.Local
 
         public async Task<bool> Append(string path, byte[] data, CancellationToken token = default(CancellationToken))
         {
-            var p = physicalPath(path);
+            var p = await physicalPath(path);
             if (CreateDirIfNonexistence(p))
             {
                 using (var fs = new FileStream(p, FileMode.Append, FileAccess.Write, FileShare.Read))

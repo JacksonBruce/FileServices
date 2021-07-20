@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Options;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Options;
 using System;
 using System.Collections.Generic;
 using System.Diagnostics;
@@ -14,7 +15,7 @@ namespace Ufangx.FileServices.Local
     public class LocalResumableService : LocalFileService, IResumableService
     {
         private readonly IResumableInfoService resumableInfoService;
-        public LocalResumableService(IResumableInfoService resumableInfoService, IOptions<LocalFileOption> option):base(option) {
+        public LocalResumableService(IResumableInfoService resumableInfoService, IOptions<LocalFileOption> option, IHttpContextAccessor httpContextAccessor) :base(option, httpContextAccessor) {
             this.resumableInfoService = resumableInfoService;
         }
         FileStream GetFileStream(string path) {
@@ -86,7 +87,7 @@ namespace Ufangx.FileServices.Local
             if (info == null) {
                 throw new Exception($"无效的{nameof(blob.ResumableKey)}");
             }
-            var p = physicalPath(info.StoreName);
+            var p =await physicalPath(info.StoreName);
             string tempdir = GetTempDir(p,info.Key);
             var tmp = Path.Combine(tempdir, $"{blob.BlobIndex}").Replace('\\','/');
             if (CreateDirIfNonexistence(tmp))
@@ -141,7 +142,7 @@ namespace Ufangx.FileServices.Local
             }
          
             if (await resumableInfoService.Delete(info)) {
-                string tempdir = GetTempDir(physicalPath(info.StoreName), info.Key); 
+                string tempdir = GetTempDir(await physicalPath(info.StoreName), info.Key); 
                 try
                 {
                     Directory.Delete(tempdir, true);

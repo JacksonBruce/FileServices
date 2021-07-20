@@ -15,7 +15,7 @@
     <Version>1.0.0-beta.1</Version>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="FileServices" Version="1.0.0" />
+    <PackageReference Include="FileServices" Version="1.0.5" />
     <PackageReference Include="Qiniu.SDK" Version="8.0.0" />
   </ItemGroup>
 

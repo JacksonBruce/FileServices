@@ -13,7 +13,7 @@
     <RepositoryType>git</RepositoryType>
     <PackageTags>file service web uploader html5 uploader breakpoint renewal</PackageTags>
     <Copyright>Copyright (c) 2020-$([System.DateTime]::Now.Year) Jackson.Bruce</Copyright>
-    <Version>1.0.2-beta</Version>
+    <Version>1.0.5</Version>
   </PropertyGroup>
 
   <PropertyGroup Condition="'$(TargetFramework)|$(Platform)'=='netstandard2.0|AnyCPU'">
@@ -40,5 +40,9 @@
     <PackageReference Include="Microsoft.Extensions.Localization.Abstractions" Version="2.1.1" />
     <PackageReference Include="Microsoft.Extensions.Logging.Abstractions" Version="2.1.1" />
   </ItemGroup>
+
+  <Target Name="PreBuild" BeforeTargets="PreBuildEvent">
+    <Exec Command="del $(ProjectDir)$(OutDir)..\*.nupkg /s/q&#xD;&#xA;exit 0" />
+  </Target>
 
 </Project>

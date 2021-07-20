@@ -76,12 +76,12 @@ namespace Ufangx.FileServices.Services
             //否则生成文件名称
             return await GenerateFileName(scheme, originName, dir);
         }
-        public async Task<object> Handle(IFormFileCollection files, string schemeName = null)
+        public async Task<object> Handle(IFormFileCollection files, string schemeName = null, string dir = null)
         {
             List<object> results = new List<object>();
             foreach (var file in files)
             {
-                var result = await Handle(file, schemeName);
+                var result = await Handle(file, schemeName, dir);
                 if (result != null){ results.Add(result); }
             }
             return results;

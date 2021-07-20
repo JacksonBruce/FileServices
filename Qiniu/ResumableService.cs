@@ -1,4 +1,5 @@
-﻿using Microsoft.Extensions.Logging;
+﻿using Microsoft.AspNetCore.Http;
+using Microsoft.Extensions.Logging;
 using Microsoft.Extensions.Options;
 using Newtonsoft.Json;
 using Qiniu.Http;
@@ -20,7 +21,7 @@ namespace Qiniu
         private readonly ILogger<ResumableService> logger;
         private readonly HttpManager _httpManager;
 
-        public ResumableService(IResumableInfoService resumableInfoService,ILogger<ResumableService> logger, IOptions<FileServiceOptions> options) : base(options)
+        public ResumableService(IResumableInfoService resumableInfoService,ILogger<ResumableService> logger, IOptions<FileServiceOptions> options, IHttpContextAccessor contextAccessor) : base(options, contextAccessor)
         {
             this.resumableInfoService = resumableInfoService;
             this.logger = logger;
@@ -129,7 +130,7 @@ namespace Qiniu
         }
         private async Task<bool> MakeFile(ResumableInfo info)
         {
-            string key = Utils.GetSaveKey(options.BasePath, info.StoreName);
+            string key = await contextAccessor.GetSaveKey(options.BasePath, info.StoreName);
             string fileName = key;
             long size = info.FileSize;
             string upToken = info.UploadToken;

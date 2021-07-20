@@ -31,7 +31,7 @@ namespace Qiniu
                 info = (ResumableInfo)(await base.Create(storeName, fileName, fileSize, fileType, blobCount, blobSize));
             }
             if (string.IsNullOrWhiteSpace(info.UploadToken)) {
-                info.UploadToken = Utils.GetToken(Utils.GetSaveKey(options.BasePath, info.StoreName), options.AccessKey, options.SecretKey, options.Bucket);
+                info.UploadToken = Utils.GetToken(await contextAccessor.GetSaveKey(options.BasePath, info.StoreName), options.AccessKey, options.SecretKey, options.Bucket);
                 await Update(info);
             }
             return info;

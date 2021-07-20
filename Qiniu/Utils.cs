@@ -1,21 +1,34 @@
-﻿using Qiniu.Storage;
+﻿using Microsoft.AspNetCore.Http;
+using Qiniu.Storage;
 using Qiniu.Util;
 using System;
 using System.Collections.Generic;
 using System.IO;
 using System.Text;
+using System.Threading.Tasks;
+using Ufangx.FileServices.Abstractions;
+using Microsoft.Extensions.DependencyInjection;
 
 namespace Qiniu
 {
     internal static class Utils
     {
-       public static string GetSaveKey(string basePath, string path)
+        static async Task<string> GetRootDir(IHttpContextAccessor contextAccessor,string basePath)
+        {
+            string root;
+            var rootService = contextAccessor.HttpContext.RequestServices.GetService<IRootDirectory>();
+            if (rootService == null || string.IsNullOrWhiteSpace(root = await rootService.GetRoot())) return basePath;
+            return Path.Combine(basePath, root.Trim().Replace('\\', '/').TrimStart('/')).Replace('\\', '/');
+        }
+
+        public static async Task<string> GetSaveKey(this IHttpContextAccessor contextAccessor, string basePath, string path)
         {
             if (string.IsNullOrWhiteSpace(path))
             {
                 throw new ArgumentException("message", nameof(path));
             }
-            return Path.Combine(basePath, path.TrimStart('/', '\\')).Trim().ToLower().Replace('\\', '/');
+            var root =await GetRootDir(contextAccessor, basePath);
+            return Path.Combine(root, path.TrimStart('/', '\\')).Trim().ToLower().Replace('\\', '/');
         }
         public static string GetToken(string savekey,string ak,string sk,string bucket,int expires=3600)
         {
